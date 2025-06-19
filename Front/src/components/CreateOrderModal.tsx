@@ -46,12 +46,12 @@ const clients: Client[] = [
 ]
 
 const products: Product[] = [
-  { id: "PROD-001", name: "Smartphone Samsung Galaxy", price: 299.99, weight: 0.2, stock: 15 },
-  { id: "PROD-002", name: "Auriculares Bluetooth", price: 79.99, weight: 0.3, stock: 25 },
-  { id: "PROD-003", name: "Tablet iPad Air", price: 599.99, weight: 0.5, stock: 8 },
-  { id: "PROD-004", name: "Cargador Inalámbrico", price: 39.99, weight: 0.2, stock: 30 },
-  { id: "PROD-005", name: "Funda Protectora", price: 19.99, weight: 0.1, stock: 50 },
-  { id: "PROD-006", name: "Powerbank 10000mAh", price: 29.99, weight: 0.4, stock: 20 },
+  { id: "PROD-001", name: "Smartphone Samsung Galaxy", price: 329.99, weight: 0.2, stock: 15 },
+  { id: "PROD-002", name: "Auriculares Bluetooth", price: 87.99, weight: 0.3, stock: 25 },
+  { id: "PROD-003", name: "Tablet iPad Air", price: 659.99, weight: 0.5, stock: 8 },
+  { id: "PROD-004", name: "Cargador Inalámbrico", price: 43.99, weight: 0.2, stock: 30 },
+  { id: "PROD-005", name: "Funda Protectora", price: 21.99, weight: 0.1, stock: 50 },
+  { id: "PROD-006", name: "Powerbank 10000mAh", price: 32.99, weight: 0.4, stock: 20 },
 ]
 
 export function CreateOrderModal({ isOpen, onClose, onCreateOrder }: CreateOrderModalProps) {
@@ -170,7 +170,7 @@ export function CreateOrderModal({ isOpen, onClose, onCreateOrder }: CreateOrder
                 .filter((product) => !orderItems.find((item) => item.productId === product.id))
                 .map((product) => (
                   <SelectItem key={product.id} value={product.id}>
-                    {product.name} - €{product.price} (Stock: {product.stock})
+                    {product.name} - ${product.price} (Stock: {product.stock})
                   </SelectItem>
                 ))}
             </Select>
@@ -199,7 +199,7 @@ export function CreateOrderModal({ isOpen, onClose, onCreateOrder }: CreateOrder
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-gray-900 truncate">{product.name}</h4>
                         <p className="text-sm text-gray-500">
-                          €{product.price} c/u • {product.weight}kg c/u • Stock: {product.stock}
+                          ${product.price} c/u • {product.weight}kg c/u • Stock: {product.stock}
                         </p>
                       </div>
 
@@ -228,7 +228,7 @@ export function CreateOrderModal({ isOpen, onClose, onCreateOrder }: CreateOrder
 
                         {/* Totales del producto */}
                         <div className="text-right min-w-[100px]">
-                          <p className="font-semibold text-lg">€{(product.price * item.quantity).toFixed(2)}</p>
+                          <p className="font-semibold text-lg">${(product.price * item.quantity).toFixed(2)}</p>
                           <p className="text-sm text-gray-500">{(product.weight * item.quantity).toFixed(1)}kg</p>
                         </div>
 
@@ -275,7 +275,7 @@ export function CreateOrderModal({ isOpen, onClose, onCreateOrder }: CreateOrder
                 </div>
                 <div className="flex justify-between items-center text-xl font-bold mt-3 pt-3 border-t border-gray-300">
                   <span>Total:</span>
-                  <span className="text-green-600">€{totalValue.toFixed(2)}</span>
+                  <span className="text-green-600">${totalValue.toFixed(2)}</span>
                 </div>
               </div>
             </CardContent>

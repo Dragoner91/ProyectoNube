@@ -73,7 +73,7 @@ export function OrderDetailsModal({
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-900">{item.productName}</h4>
                     <p className="text-sm text-gray-500">
-                      €{item.price.toFixed(2)} c/u • {item.weight}kg c/u
+                      ${item.price.toFixed(2)} c/u • {item.weight}kg c/u
                     </p>
                   </div>
 
@@ -90,7 +90,7 @@ export function OrderDetailsModal({
 
                     <div className="text-right min-w-[100px]">
                       <p className="text-sm text-gray-500">Subtotal</p>
-                      <p className="font-semibold text-lg text-blue-600">€{(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-semibold text-lg text-blue-600">${(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                   </div>
                 </div>
@@ -115,7 +115,7 @@ export function OrderDetailsModal({
               <div className="border-t border-green-300 pt-3">
                 <div className="flex justify-between items-center">
                   <span className="text-xl font-semibold text-green-800">Total del Pedido:</span>
-                  <span className="text-2xl font-bold text-green-600">€{totalValue.toFixed(2)}</span>
+                  <span className="text-2xl font-bold text-green-600">${totalValue.toFixed(2)}</span>
                 </div>
               </div>
             </div>

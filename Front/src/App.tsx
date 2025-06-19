@@ -65,14 +65,14 @@ const initialOrders: Order[] = [
     status: "in_transit",
     createdAt: "2024-01-15T10:30:00Z",
     weight: 2.5,
-    value: 150.0,
+    value: 165.0,
     statusHistory: [
       { status: "pending", timestamp: "2024-01-15T10:30:00Z", note: "Pedido creado" },
       { status: "in_transit", timestamp: "2024-01-15T14:20:00Z", note: "Enviado desde almacén" },
     ],
     items: [
-      { productId: "PROD-001", productName: "Smartphone Samsung Galaxy", quantity: 1, price: 299.99, weight: 0.2 },
-      { productId: "PROD-002", productName: "Auriculares Bluetooth", quantity: 2, price: 79.99, weight: 0.3 },
+      { productId: "PROD-001", productName: "Smartphone Samsung Galaxy", quantity: 1, price: 329.99, weight: 0.2 },
+      { productId: "PROD-002", productName: "Auriculares Bluetooth", quantity: 2, price: 87.99, weight: 0.3 },
     ],
   },
   {
@@ -81,9 +81,9 @@ const initialOrders: Order[] = [
     status: "pending",
     createdAt: "2024-01-15T11:15:00Z",
     weight: 1.2,
-    value: 89.99,
+    value: 99.99,
     statusHistory: [{ status: "pending", timestamp: "2024-01-15T11:15:00Z", note: "Pedido recibido" }],
-    items: [{ productId: "PROD-004", productName: "Cargador Inalámbrico", quantity: 1, price: 39.99, weight: 0.2 }],
+    items: [{ productId: "PROD-004", productName: "Cargador Inalámbrico", quantity: 1, price: 43.99, weight: 0.2 }],
   },
   {
     id: "ORD-003",
@@ -91,15 +91,15 @@ const initialOrders: Order[] = [
     status: "delivered",
     createdAt: "2024-01-14T09:20:00Z",
     weight: 3.8,
-    value: 299.5,
+    value: 329.99,
     statusHistory: [
       { status: "pending", timestamp: "2024-01-14T09:20:00Z", note: "Pedido creado" },
       { status: "in_transit", timestamp: "2024-01-14T15:30:00Z", note: "En camino" },
       { status: "delivered", timestamp: "2024-01-15T11:45:00Z", note: "Entregado exitosamente" },
     ],
     items: [
-      { productId: "PROD-003", productName: "Tablet iPad Air", quantity: 1, price: 599.99, weight: 0.5 },
-      { productId: "PROD-005", productName: "Funda Protectora", quantity: 3, price: 19.99, weight: 0.1 },
+      { productId: "PROD-003", productName: "Tablet iPad Air", quantity: 1, price: 659.99, weight: 0.5 },
+      { productId: "PROD-005", productName: "Funda Protectora", quantity: 3, price: 21.99, weight: 0.1 },
     ],
   },
   {
@@ -108,15 +108,15 @@ const initialOrders: Order[] = [
     status: "delayed",
     createdAt: "2024-01-13T14:45:00Z",
     weight: 5.2,
-    value: 450.0,
+    value: 495.0,
     statusHistory: [
       { status: "pending", timestamp: "2024-01-13T14:45:00Z", note: "Pedido creado" },
       { status: "in_transit", timestamp: "2024-01-14T08:00:00Z", note: "Enviado" },
       { status: "delayed", timestamp: "2024-01-15T16:30:00Z", note: "Retraso por condiciones climáticas" },
     ],
     items: [
-      { productId: "PROD-001", productName: "Smartphone Samsung Galaxy", quantity: 2, price: 299.99, weight: 0.2 },
-      { productId: "PROD-006", productName: "Powerbank 10000mAh", quantity: 1, price: 29.99, weight: 0.4 },
+      { productId: "PROD-001", productName: "Smartphone Samsung Galaxy", quantity: 2, price: 329.99, weight: 0.2 },
+      { productId: "PROD-006", productName: "Powerbank 10000mAh", quantity: 1, price: 32.99, weight: 0.4 },
     ],
   },
   {
@@ -125,14 +125,14 @@ const initialOrders: Order[] = [
     status: "in_transit",
     createdAt: "2024-01-15T08:00:00Z",
     weight: 0.8,
-    value: 45.0,
+    value: 49.99,
     statusHistory: [
       { status: "pending", timestamp: "2024-01-15T08:00:00Z", note: "Pedido recibido" },
       { status: "in_transit", timestamp: "2024-01-15T12:15:00Z", note: "En ruta de entrega" },
     ],
     items: [
-      { productId: "PROD-005", productName: "Funda Protectora", quantity: 1, price: 19.99, weight: 0.1 },
-      { productId: "PROD-004", productName: "Cargador Inalámbrico", quantity: 1, price: 39.99, weight: 0.2 },
+      { productId: "PROD-005", productName: "Funda Protectora", quantity: 1, price: 21.99, weight: 0.1 },
+      { productId: "PROD-004", productName: "Cargador Inalámbrico", quantity: 1, price: 43.99, weight: 0.2 },
     ],
   },
   {
@@ -141,12 +141,12 @@ const initialOrders: Order[] = [
     status: "cancelled",
     createdAt: "2024-01-12T16:20:00Z",
     weight: 1.5,
-    value: 75.0,
+    value: 82.99,
     statusHistory: [
       { status: "pending", timestamp: "2024-01-12T16:20:00Z", note: "Pedido creado" },
       { status: "cancelled", timestamp: "2024-01-13T09:10:00Z", note: "Cancelado por el cliente" },
     ],
-    items: [{ productId: "PROD-002", productName: "Auriculares Bluetooth", quantity: 1, price: 79.99, weight: 0.3 }],
+    items: [{ productId: "PROD-002", productName: "Auriculares Bluetooth", quantity: 1, price: 87.99, weight: 0.3 }],
   },
 ]
 
@@ -459,7 +459,7 @@ export default function ShippingDashboard() {
                         </td>
                         <td className="p-4 align-middle">{formatDate(order.createdAt)}</td>
                         <td className="p-4 align-middle">{order.weight} kg</td>
-                        <td className="p-4 align-middle">€{order.value.toFixed(2)}</td>
+                        <td className="p-4 align-middle">${order.value.toFixed(2)}</td>
                         <td className="p-4 align-middle">
                           <div className="flex flex-col sm:flex-row gap-2">
                             <button
