@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  front:
+    build: ./front
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./front:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev -- --host 0.0.0.0
+    depends_on:
+      - back
+
+  back:
+    build: ./back
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
+      - RABBITMQ_URL=amqp://rabbitmq
+    depends_on:
+      - db
+      - rabbitmq
+
+  worker:
+    build: ./worker
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
+      - RABBITMQ_URL=amqp://rabbitmq
+    depends_on:
+      - db
+      - rabbitmq
+
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  pgdata:
