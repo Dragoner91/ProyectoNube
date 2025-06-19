@@ -17,10 +17,11 @@ services:
   back:
     build: ./back
     ports:
-      - "4000:4000"
+      - "3000:3000"
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - RABBITMQ_URL=amqp://rabbitmq
+    command: npm run start:dev
     depends_on:
       - db
       - rabbitmq
@@ -30,6 +31,7 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - RABBITMQ_URL=amqp://rabbitmq
+    command: npm run start:dev
     depends_on:
       - db
       - rabbitmq
