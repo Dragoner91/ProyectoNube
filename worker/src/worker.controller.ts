@@ -6,8 +6,7 @@ import { WorkerService } from './worker.service';
 export class WorkerController {
     constructor(private readonly workerService: WorkerService) {}
 
-    @EventPattern('pedido_creado') 
     async handleOrderCreated(@Payload() data: { pedidoId: number; initialStatus: string }) {
-        await this.workerService.handleOrderCreated(data);
+        //
     }
 }

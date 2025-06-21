@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { WorkerService } from './worker.service';
-import { WorkerController } from './worker.controller';
+//import { WorkerController } from './worker.controller';
 import { Pedido } from './order/order.entity';
 import { Estatus } from './status/status.entity';
 
@@ -28,7 +28,7 @@ import { Estatus } from './status/status.entity';
     }),
     TypeOrmModule.forFeature([Pedido, Estatus]),
   ],
-  controllers: [WorkerController],
+  controllers: [],
   providers: [WorkerService],
 })
 export class WorkerModule {}

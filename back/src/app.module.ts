@@ -35,21 +35,15 @@ import { ProductoService } from './product/product.service';
       }),
     }),
     TypeOrmModule.forFeature([Pedido, Estatus, Cliente, Producto, ProductoPedido]),
-    ClientsModule.registerAsync([
+    ClientsModule.register([
       {
         name: 'RABBITMQ_SERVICE',
-        imports: [ConfigModule],
-        inject: [ConfigService],
-        useFactory: (configService: ConfigService) => ({
-          transport: Transport.RMQ,
-          options: {
-            urls: [configService.get<string>('RABBITMQ_URL', 'amqp://rabbitmq')],
-            queue: 'order_created_queue',
-            queueOptions: {
-              durable: false,
-            },
-          },
-        }),
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://guest:guest@rabbitmq:5672'],
+          exchange: 'pedido_events_exchange', // Emite a este exchange
+          exchangeType: 'topic',
+        },
       },
     ]),
   ],
