@@ -438,14 +438,10 @@ export default function ShippingDashboard() {
                     <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 text-sm">ID PEDIDO</th>
                     <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 text-sm">CLIENTE</th>
                     <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 text-sm">ESTADO</th>
-                    <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 text-sm">
-                      FECHA CREACIÓN
-                    </th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 text-sm">FECHA CREACIÓN</th>
                     <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 text-sm">PESO</th>
                     <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 text-sm">VALOR</th>
-                    <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 text-sm w-48">
-                      ACCIONES
-                    </th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 text-sm w-48">ACCIONES</th>
                   </tr>
                 </thead>
                 <tbody>
