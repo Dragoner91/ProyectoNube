@@ -4,13 +4,14 @@ services:
   front:
     build: ./front
     ports:
-      - "5173:5173"
+      - "5173:3000"
+    
     volumes:
       - ./front:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development
-    command: npm run dev -- --host 0.0.0.0
+      - PORT=5173
     depends_on:
       - back
 
