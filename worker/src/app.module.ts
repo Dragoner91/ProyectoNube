@@ -5,6 +5,7 @@ import { WorkerService } from './worker.service';
 //import { WorkerController } from './worker.controller';
 import { Pedido } from './order/order.entity';
 import { Estatus } from './status/status.entity';
+import { WorkerController } from './worker.controller';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { Estatus } from './status/status.entity';
     }),
     TypeOrmModule.forFeature([Pedido, Estatus]),
   ],
-  controllers: [],
+  controllers: [WorkerController],
   providers: [WorkerService],
 })
 export class WorkerModule {}

@@ -16,8 +16,7 @@ export class WorkerService {
         private estatusRepository: Repository<Estatus>,
     ) {}
 
-    @EventPattern('pedido_creado')
-    async handlePedidoCreado(@Payload() data: { pedidoId: number; initialStatus: string }, @Ctx() context: RmqContext) {
+    async handlePedidoCreado(data: { pedidoId: number; initialStatus: string }, context: RmqContext) {
         const channel = context.getChannelRef();
         const originalMessage = context.getMessage();
 

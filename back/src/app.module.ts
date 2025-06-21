@@ -38,11 +38,12 @@ import { ProductoService } from './product/product.service';
     ClientsModule.register([
       {
         name: 'RABBITMQ_SERVICE',
-        transport: Transport.RMQ,
-        options: {
-          urls: ['amqp://guest:guest@rabbitmq:5672'],
-          exchange: 'pedido_events_exchange', // Emite a este exchange
-          exchangeType: 'topic',
+        transport: Transport.RMQ,
+        options: {
+          queue: 'order_created_queue',
+          urls: ['amqp://guest:guest@rabbitmq:5672'],
+          exchange: 'pedido_events_exchange', // Emite a este exchange
+          exchangeType: 'topic',
         },
       },
     ]),
