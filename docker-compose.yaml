@@ -5,13 +5,9 @@ services:
     build: ./front
     ports:
       - "5173:3000"
-    
     volumes:
       - ./front:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-      - PORT=5173
+      - node_modules_front:/app/node_modules
     depends_on:
       - back
 
@@ -86,3 +82,4 @@ services:
 
 volumes:
   pgdata:
+  node_modules_front:
