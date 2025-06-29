@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { headers } from "next/headers"
+import crypto from "crypto"
 
 // Tipos para el webhook
 interface WebhookOrderUpdate {
@@ -7,13 +8,6 @@ interface WebhookOrderUpdate {
   status: "pending" | "in_transit" | "delivered" | "cancelled" | "delayed"
   timestamp: string
   note?: string
-  trackingNumber?: string
-  estimatedDelivery?: string
-  location?: {
-    latitude?: number
-    longitude?: number
-    address?: string
-  }
 }
 
 interface WebhookPayload {
@@ -28,7 +22,6 @@ function verifyWebhookSignature(payload: string, signature: string, secret: stri
   if (!signature || !secret) return true // Skip verification if not configured
 
   try {
-    const crypto = require("crypto")
     const expectedSignature = crypto.createHmac("sha256", secret).update(payload).digest("hex")
 
     return `sha256=${expectedSignature}` === signature
@@ -38,23 +31,7 @@ function verifyWebhookSignature(payload: string, signature: string, secret: stri
   }
 }
 
-// Función para enviar actualizaciones a clientes conectados via SSE
-function broadcastUpdate(update: WebhookOrderUpdate) {
-  // Aquí enviaremos la actualización a todos los clientes conectados
-  // Implementaremos esto en el siguiente paso
-  global.sseClients?.forEach((client: any) => {
-    try {
-      client.write(
-        `data: ${JSON.stringify({
-          type: "order-update",
-          payload: update,
-        })}\n\n`,
-      )
-    } catch (error) {
-      console.error("Error sending SSE update:", error)
-    }
-  })
-}
+import { sendSseUpdate } from "../../sse/order-updates/route"
 
 export async function POST(request: NextRequest) {
   try {
@@ -91,10 +68,6 @@ export async function POST(request: NextRequest) {
         console.log(`🔄 Order ${payload.data.orderId} status changed to: ${payload.data.status}`)
         break
 
-      case "order.location.updated":
-        console.log(`📍 Order ${payload.data.orderId} location updated:`, payload.data.location)
-        break
-
       case "order.delivered":
         console.log(`✅ Order ${payload.data.orderId} has been delivered!`)
         break
@@ -104,7 +77,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Enviar actualización a todos los clientes conectados
-    broadcastUpdate(payload.data)
+    sendSseUpdate({
+      type: "order-update",
+      payload: payload.data,
+    })
 
     // Opcional: Guardar en base de datos local para caché
     // await saveOrderUpdateToCache(payload.data)

@@ -8,6 +8,14 @@ export interface StatusHistoryItem {
 
 export class OrdersService {
   private static transformOrder(order: any): Order {
+    const statusMapping: { [key: string]: Order["status"] } = {
+      pendiente: "pending",
+      "en tránsito": "in_transit",
+      entregado: "delivered",
+      cancelado: "cancelled",
+      retrasado: "delayed",
+    }
+
     const items = order.productosPedidos.map((item: any) => ({
       quantity: item.cantidad,
       product: {
@@ -17,10 +25,13 @@ export class OrdersService {
         weight: parseFloat(item.producto.peso) || 0,
         stock: item.producto.disponibilidad || 0,
       },
-    })) || [];
+    })) || []
 
-    const totalWeight = items.reduce((acc: number, item: any) => acc + item.product.weight * item.quantity, 0);
-    const currentStatus = order.estatus?.[0]?.nombre ? order.estatus[0].nombre.toLowerCase() : "pending";
+    const totalWeight = items.reduce((acc: number, item: any) => acc + item.product.weight * item.quantity, 0)
+    // Tomar el último estatus como el actual
+    const lastStatusObj = order.estatus && order.estatus.length > 0 ? order.estatus[order.estatus.length - 1] : null;
+    const rawStatus = lastStatusObj?.estatus ? lastStatusObj.estatus.toLowerCase() : "pending"
+    const currentStatus = statusMapping[rawStatus] || "pending"
     const createdAt = order.fecha_creacion && !isNaN(new Date(order.fecha_creacion).getTime()) 
       ? new Date(order.fecha_creacion).toISOString() 
       : new Date().toISOString();
@@ -35,11 +46,11 @@ export class OrdersService {
       weight: totalWeight,
       items: items,
       statusHistory: order.estatus?.map((s: any) => ({
-        status: s.nombre ? s.nombre.toLowerCase() : "unknown",
-        timestamp: s.fecha_actualizacion && !isNaN(new Date(s.fecha_actualizacion).getTime()) 
-          ? new Date(s.fecha_actualizacion).toISOString() 
+        status: s.estatus ? statusMapping[s.estatus.toLowerCase()] : "unknown",
+        timestamp: s.fecha_hora && !isNaN(new Date(s.fecha_hora).getTime()) 
+          ? new Date(s.fecha_hora).toISOString() 
           : new Date().toISOString(),
-        note: `Estado actualizado a ${s.nombre || 'desconocido'}`,
+        note: s.nota || `Estado actualizado a ${s.estatus || 'desconocido'}`,
       })) || [],
     };
   }
@@ -97,3 +108,4 @@ export class OrdersService {
     return apiClient.get<ApiResponse<StatusHistoryItem[]>>(`/order/${id}/history`);
   }
 }
+

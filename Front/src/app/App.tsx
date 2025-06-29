@@ -85,6 +85,7 @@ export default function ShippingDashboard() {
     }
 
     setFilteredOrders(filtered)
+    console.log("Filtered orders updated:", filtered); // Added for debugging
   }, [orders, searchTerm, statusFilter])
 
   // Estadísticas
@@ -108,7 +109,7 @@ export default function ShippingDashboard() {
   }
 
   const StatusBadge = ({ status }: { status: Order["status"] }) => {
-    const config = statusConfig[status]
+    const config = statusConfig[status] || { label: "Desconocido", color: "bg-gray-100 text-gray-800", icon: Package }
     const Icon = config.icon
 
     return (
