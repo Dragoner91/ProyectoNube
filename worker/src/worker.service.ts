@@ -49,7 +49,7 @@ export class WorkerService {
         // Esto evita que RabbitMQ intente re-enviar el mensaje si tu worker se cae durante el delay.
         channel.ack(originalMessage);
 
-        const delay = 10 * 1000; // 5 segundos para pruebas. Cámbialo a 5 * 60 * 1000 para 5 minutos.
+        const delay = 25 * 1000; // 5 segundos para pruebas. Cámbialo a 5 * 60 * 1000 para 5 minutos.
 
         this.logger.log(`[Order Processing] Setting a ${delay / 1000} second delay for Pedido ID: ${pedidoId}`);
 
