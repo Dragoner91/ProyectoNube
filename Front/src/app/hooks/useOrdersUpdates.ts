@@ -10,13 +10,6 @@ interface OrderUpdateEvent {
     status: Order["status"]
     timestamp: string
     note?: string
-    trackingNumber?: string
-    estimatedDelivery?: string
-    location?: {
-      latitude?: number
-      longitude?: number
-      address?: string
-    }
   }
   message?: string
   timestamp: string

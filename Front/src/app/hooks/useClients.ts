@@ -1,37 +1,47 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback } from "react"
-import { ClientsService } from "@/services/clients"
-import type { Client } from "@/lib/types"
+import { useState, useEffect, useCallback } from "react";
+import { ClientsService } from "@/services/clients";
+import type { Client } from "@/lib/types";
 
-export function useClients() {
-  const [clients, setClients] = useState<Client[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export function useClients(initialFilters?: {
+  search?: string;
+  page?: number;
+  limit?: number;
+}) {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchClients = useCallback(async () => {
+  const fetchClients = useCallback(async (filters?: typeof initialFilters) => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
-      const response = await ClientsService.getClients({ limit: 100 })
-      setClients(response.data)
+      const response = await ClientsService.getClients(filters);
+
+      setClients(response.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar clientes")
-      console.error("Error fetching clients:", err)
+      setError(err instanceof Error ? err.message : "Error al cargar clientes");
+      console.error("Error fetching clients:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
+
+  const refreshClients = useCallback(() => {
+    fetchClients(initialFilters);
+  }, [fetchClients, initialFilters]);
 
   useEffect(() => {
-    fetchClients()
-  }, [fetchClients])
+    fetchClients(initialFilters);
+  }, [fetchClients, initialFilters]);
 
   return {
     clients,
     loading,
     error,
-    refetch: fetchClients,
-  }
+    fetchClients,
+    refreshClients,
+  };
 }

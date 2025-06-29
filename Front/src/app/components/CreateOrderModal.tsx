@@ -1,135 +1,105 @@
-"use client"
-
-import type React from "react"
-
-import { useState } from "react"
-import { Modal } from "./Modal"
-import { Button } from "./Button"
-import { Input } from "./Input"
-import { Select, SelectItem } from "./Select"
-import { Card, CardContent } from "./Card"
-import { Plus, Minus, Trash2, Package } from "lucide-react"
-
-interface Client {
-  id: string
-  name: string
-  email: string
-  phone: string
-}
-
-interface Product {
-  id: string
-  name: string
-  price: number
-  weight: number
-  stock: number
-}
-
-interface OrderItem {
-  productId: string
-  quantity: number
-}
+import type React from "react";
+import { useState } from "react";
+import { Modal } from "./Modal";
+import { Button } from "./Button";
+import { Input } from "./Input";
+import { Select, SelectItem } from "./Select";
+import { Card, CardContent } from "./Card";
+import { Plus, Minus, Trash2, Package, Loader } from "lucide-react";
+import type { Client, Product, OrderItem } from "@/lib/types";
 
 interface CreateOrderModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onCreateOrder: (orderData: any) => void
+  isOpen: boolean;
+  onClose: () => void;
+  onCreateOrder: (orderData: any) => void;
+  clients: Client[];
+  products: Product[];
+  loadingClients: boolean;
+  loadingProducts: boolean;
 }
 
-// Datos de ejemplo
-const clients: Client[] = [
-  { id: "CLI-001", name: "María González", email: "maria@email.com", phone: "+34 600 123 456" },
-  { id: "CLI-002", name: "Carlos Rodríguez", email: "carlos@email.com", phone: "+34 600 234 567" },
-  { id: "CLI-003", name: "Ana Martín", email: "ana@email.com", phone: "+34 600 345 678" },
-  { id: "CLI-004", name: "Luis Fernández", email: "luis@email.com", phone: "+34 600 456 789" },
-  { id: "CLI-005", name: "Elena Ruiz", email: "elena@email.com", phone: "+34 600 567 890" },
-]
-
-const products: Product[] = [
-  { id: "PROD-001", name: "Smartphone Samsung Galaxy", price: 329.99, weight: 0.2, stock: 15 },
-  { id: "PROD-002", name: "Auriculares Bluetooth", price: 87.99, weight: 0.3, stock: 25 },
-  { id: "PROD-003", name: "Tablet iPad Air", price: 659.99, weight: 0.5, stock: 8 },
-  { id: "PROD-004", name: "Cargador Inalámbrico", price: 43.99, weight: 0.2, stock: 30 },
-  { id: "PROD-005", name: "Funda Protectora", price: 21.99, weight: 0.1, stock: 50 },
-  { id: "PROD-006", name: "Powerbank 10000mAh", price: 32.99, weight: 0.4, stock: 20 },
-]
-
-export function CreateOrderModal({ isOpen, onClose, onCreateOrder }: CreateOrderModalProps) {
-  const [selectedClient, setSelectedClient] = useState("")
-  const [address, setAddress] = useState("")
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([])
-  const [selectedProduct, setSelectedProduct] = useState("")
+export function CreateOrderModal({
+  isOpen,
+  onClose,
+  onCreateOrder,
+  clients,
+  products,
+  loadingClients,
+  loadingProducts,
+}: CreateOrderModalProps) {
+  const [selectedClient, setSelectedClient] = useState("");
+  const [address, setAddress] = useState("");
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const addProduct = () => {
-    if (selectedProduct && !orderItems.find((item) => item.productId === selectedProduct)) {
-      setOrderItems([...orderItems, { productId: selectedProduct, quantity: 1 }])
-      setSelectedProduct("")
+    if (selectedProduct && !orderItems.find((item) => item.product.id === selectedProduct.id)) {
+      setOrderItems([...orderItems, { product: selectedProduct, quantity: 1 }]);
+      setSelectedProduct(null);
     }
-  }
+  };
 
   const updateQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity <= 0) {
-      removeProduct(productId)
-      return
+      removeProduct(productId);
+      return;
     }
 
-    const product = products.find((p) => p.id === productId)
+    const product = products.find((p) => p.id === productId);
     if (product && newQuantity <= product.stock) {
       setOrderItems(
-        orderItems.map((item) => (item.productId === productId ? { ...item, quantity: newQuantity } : item)),
-      )
+        orderItems.map((item) =>
+          item.product.id === productId ? { ...item, quantity: newQuantity } : item
+        )
+      );
     }
-  }
+  };
 
   const removeProduct = (productId: string) => {
-    setOrderItems(orderItems.filter((item) => item.productId !== productId))
-  }
+    setOrderItems(orderItems.filter((item) => item.product.id !== productId));
+  };
 
   const calculateTotals = () => {
-    let totalValue = 0
-    let totalWeight = 0
+    let totalValue = 0;
+    let totalWeight = 0;
 
     orderItems.forEach((item) => {
-      const product = products.find((p) => p.id === item.productId)
-      if (product) {
-        totalValue += product.price * item.quantity
-        totalWeight += product.weight * item.quantity
-      }
-    })
+      totalValue += item.product.price * item.quantity;
+      totalWeight += item.product.weight * item.quantity;
+    });
 
-    return { totalValue, totalWeight }
-  }
+    return { totalValue, totalWeight };
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!selectedClient || !address || orderItems.length === 0) {
-      alert("Por favor completa todos los campos requeridos")
-      return
+      alert("Por favor completa todos los campos requeridos");
+      return;
     }
 
-    const client = clients.find((c) => c.id === selectedClient)
-    const { totalValue, totalWeight } = calculateTotals()
+    const client = clients.find((c) => c.id === selectedClient);
+    const { totalValue, totalWeight } = calculateTotals();
 
     const orderData = {
-      client: client?.name,
-      address,
+      client: client?.id,
+      address: address,
       items: orderItems,
-      totalValue,
-      totalWeight,
-    }
+      total: totalValue
+    };
 
-    onCreateOrder(orderData)
+    onCreateOrder(orderData);
 
     // Reset form
-    setSelectedClient("")
-    setAddress("")
-    setOrderItems([])
-    setSelectedProduct("")
-    onClose()
-  }
+    setSelectedClient("");
+    setAddress("");
+    setOrderItems([]);
+    setSelectedProduct(null);
+    onClose();
+  };
 
-  const { totalValue, totalWeight } = calculateTotals()
+  const { totalValue, totalWeight } = calculateTotals();
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Crear Nuevo Pedido" className="max-w-4xl">
@@ -137,14 +107,25 @@ export function CreateOrderModal({ isOpen, onClose, onCreateOrder }: CreateOrder
         {/* Cliente */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Cliente *</label>
-          <Select value={selectedClient} onValueChange={setSelectedClient} className="w-full">
-            <SelectItem value="default">Seleccionar cliente...</SelectItem>
-            {clients.map((client) => (
-              <SelectItem key={client.id} value={client.id}>
-                {client.name} - {client.email}
-              </SelectItem>
-            ))}
-          </Select>
+          {loadingClients ? (
+            <div className="flex items-center gap-2 text-gray-500">
+              <Loader className="w-4 h-4 animate-spin" />
+              <span>Cargando clientes...</span>
+            </div>
+          ) : (
+            <Select
+              value={selectedClient}
+              onValueChange={setSelectedClient}
+              className="w-full"
+            >
+              <SelectItem value="default">Seleccionar cliente...</SelectItem>
+              {clients && clients.map((client) => (
+                <SelectItem key={client.id} value={client.id}>
+                  {client.name} - {client.email}
+                </SelectItem>
+              ))}
+            </Select>
+          )}
         </div>
 
         {/* Dirección */}
@@ -164,21 +145,35 @@ export function CreateOrderModal({ isOpen, onClose, onCreateOrder }: CreateOrder
 
           {/* Agregar producto */}
           <div className="flex gap-2 mb-4">
-            <Select value={selectedProduct} onValueChange={setSelectedProduct} className="flex-1">
-              <SelectItem value="default">Seleccionar producto...</SelectItem>
-              {products
-                .filter((product) => !orderItems.find((item) => item.productId === product.id))
-                .map((product) => (
-                  <SelectItem key={product.id} value={product.id}>
-                    {product.name} - ${product.price} (Stock: {product.stock})
-                  </SelectItem>
-                ))}
-            </Select>
+            {loadingProducts ? (
+              <div className="flex items-center gap-2 text-gray-500">
+                <Loader className="w-4 h-4 animate-spin" />
+                <span>Cargando productos...</span>
+              </div>
+            ) : (
+              <Select
+                value={selectedProduct?.id || "default"}
+                onValueChange={(value) => {
+                  const product = products.find((p) => p.id == value);
+                  setSelectedProduct(product ?? null);
+                }}
+                className="flex-1"
+              >
+                <SelectItem value="default">Seleccionar producto...</SelectItem>
+                {products && products
+                  .filter((product) => !orderItems.find((item) => item.product.id === product.id))
+                  .map((product) => (
+                    <SelectItem key={product.id} value={product.id}>
+                      {product.name} - ${product.price} (Stock: {product.stock})
+                    </SelectItem>
+                  ))}
+              </Select>
+            )}
             {/* Botón verde para agregar producto */}
             <button
               type="button"
               onClick={addProduct}
-              disabled={!selectedProduct}
+              disabled={!selectedProduct || loadingProducts}
               className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2 font-medium"
             >
               <Plus className="w-4 h-4" />
@@ -188,64 +183,63 @@ export function CreateOrderModal({ isOpen, onClose, onCreateOrder }: CreateOrder
 
           {/* Lista de productos agregados */}
           <div className="space-y-3">
-            {orderItems.map((item) => {
-              const product = products.find((p) => p.id === item.productId)
-              if (!product) return null
+            {orderItems.map((item) => (
+              <Card key={item.product.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-gray-900 truncate">{item.product.name}</h4>
+                      <p className="text-sm text-gray-500">
+                        ${item.product.price} c/u • {item.product.weight}kg c/u • Stock: {item.product.stock}
+                      </p>
+                    </div>
 
-              return (
-                <Card key={item.productId}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-gray-900 truncate">{product.name}</h4>
+                    <div className="flex items-center gap-4 flex-shrink-0">
+                      {/* Controles de cantidad */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                          className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-150"
+                        >
+                          <Minus className="w-4 h-4 text-gray-600" />
+                        </button>
+
+                        <span className="w-12 text-center font-medium text-lg">{item.quantity}</span>
+
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                          disabled={item.quantity >= item.product.stock}
+                          className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150"
+                        >
+                          <Plus className="w-4 h-4 text-gray-600" />
+                        </button>
+                      </div>
+
+                      {/* Totales del producto */}
+                      <div className="text-right min-w-[100px]">
+                        <p className="font-semibold text-lg">
+                          ${(item.product.price * item.quantity).toFixed(2)}
+                        </p>
                         <p className="text-sm text-gray-500">
-                          ${product.price} c/u • {product.weight}kg c/u • Stock: {product.stock}
+                          {(item.product.weight * item.quantity).toFixed(1)}kg
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-4 flex-shrink-0">
-                        {/* Controles de cantidad */}
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                            className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-150"
-                          >
-                            <Minus className="w-4 h-4 text-gray-600" />
-                          </button>
-
-                          <span className="w-12 text-center font-medium text-lg">{item.quantity}</span>
-
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                            disabled={item.quantity >= product.stock}
-                            className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150"
-                          >
-                            <Plus className="w-4 h-4 text-gray-600" />
-                          </button>
-                        </div>
-
-                        {/* Totales del producto */}
-                        <div className="text-right min-w-[100px]">
-                          <p className="font-semibold text-lg">${(product.price * item.quantity).toFixed(2)}</p>
-                          <p className="text-sm text-gray-500">{(product.weight * item.quantity).toFixed(1)}kg</p>
-                        </div>
-
-                        {/* Botón eliminar */}
-                        <button
-                          type="button"
-                          onClick={() => removeProduct(item.productId)}
-                          className="w-8 h-8 flex items-center justify-center border border-red-300 rounded-md text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-150"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                      {/* Botón eliminar */}
+                      <button
+                        type="button"
+                        onClick={() => removeProduct(item.product.id)}
+                        className="w-8 h-8 flex items-center justify-center border border-red-300 rounded-md text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-150"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
           {orderItems.length === 0 && (
@@ -297,5 +291,5 @@ export function CreateOrderModal({ isOpen, onClose, onCreateOrder }: CreateOrder
         </div>
       </form>
     </Modal>
-  )
+  );
 }

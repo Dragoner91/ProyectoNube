@@ -56,7 +56,7 @@ export class PedidoService {
                 if (!producto) {
                     throw new BadRequestException(`Producto con ID ${item.ID_Producto} no encontrado.`);
                 }
-                if (producto.disponibilidad === false) {
+                if (producto.disponibilidad <= 0) {
                     throw new BadRequestException(`Producto con ID ${item.ID_Producto} no está disponible.`);
                 }
                 if (item.cantidad <= 0) {

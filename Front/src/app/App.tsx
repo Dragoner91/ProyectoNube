@@ -20,34 +20,16 @@ import {
   History,
   Plus,
   ShoppingCart,
+  Loader,
 } from "lucide-react"
 import { CreateOrderModal } from "./components/CreateOrderModal"
 import { OrderDetailsModal } from "./components/OrderDetailsModal"
-
-interface OrderItem {
-  productId: string
-  productName: string
-  quantity: number
-  price: number
-  weight: number
-}
-
-interface Order {
-  id: string
-  customer: string
-  status: "pending" | "in_transit" | "delivered" | "cancelled" | "delayed"
-  createdAt: string
-  weight: number
-  value: number
-  statusHistory: StatusHistoryItem[]
-  items: OrderItem[]
-}
-
-interface StatusHistoryItem {
-  status: "pending" | "in_transit" | "delivered" | "cancelled" | "delayed"
-  timestamp: string
-  note?: string
-}
+import { SuccessModal } from "./components/SuccessModal"
+import { useClients } from "./hooks/useClients"
+import { useOrders } from "./hooks/useOrders"
+import { useProducts } from "./hooks/useProducts"
+import type { Order, OrderItem, StatusHistoryItem } from "./lib/types"
+import { OrdersService } from "./services/orders"
 
 const statusConfig = {
   pending: { label: "Pendiente", color: "bg-yellow-100 text-yellow-800", icon: Clock },
@@ -57,143 +39,29 @@ const statusConfig = {
   delayed: { label: "Retrasado", color: "bg-orange-100 text-orange-800", icon: AlertCircle },
 }
 
-// Datos de ejemplo con productos incluidos
-const initialOrders: Order[] = [
-  {
-    id: "ORD-001",
-    customer: "María González",
-    status: "in_transit",
-    createdAt: "2024-01-15T10:30:00Z",
-    weight: 2.5,
-    value: 165.0,
-    statusHistory: [
-      { status: "pending", timestamp: "2024-01-15T10:30:00Z", note: "Pedido creado" },
-      { status: "in_transit", timestamp: "2024-01-15T14:20:00Z", note: "Enviado desde almacén" },
-    ],
-    items: [
-      { productId: "PROD-001", productName: "Smartphone Samsung Galaxy", quantity: 1, price: 329.99, weight: 0.2 },
-      { productId: "PROD-002", productName: "Auriculares Bluetooth", quantity: 2, price: 87.99, weight: 0.3 },
-    ],
-  },
-  {
-    id: "ORD-002",
-    customer: "Carlos Rodríguez",
-    status: "pending",
-    createdAt: "2024-01-15T11:15:00Z",
-    weight: 1.2,
-    value: 99.99,
-    statusHistory: [{ status: "pending", timestamp: "2024-01-15T11:15:00Z", note: "Pedido recibido" }],
-    items: [{ productId: "PROD-004", productName: "Cargador Inalámbrico", quantity: 1, price: 43.99, weight: 0.2 }],
-  },
-  {
-    id: "ORD-003",
-    customer: "Ana Martín",
-    status: "delivered",
-    createdAt: "2024-01-14T09:20:00Z",
-    weight: 3.8,
-    value: 329.99,
-    statusHistory: [
-      { status: "pending", timestamp: "2024-01-14T09:20:00Z", note: "Pedido creado" },
-      { status: "in_transit", timestamp: "2024-01-14T15:30:00Z", note: "En camino" },
-      { status: "delivered", timestamp: "2024-01-15T11:45:00Z", note: "Entregado exitosamente" },
-    ],
-    items: [
-      { productId: "PROD-003", productName: "Tablet iPad Air", quantity: 1, price: 659.99, weight: 0.5 },
-      { productId: "PROD-005", productName: "Funda Protectora", quantity: 3, price: 21.99, weight: 0.1 },
-    ],
-  },
-  {
-    id: "ORD-004",
-    customer: "Luis Fernández",
-    status: "delayed",
-    createdAt: "2024-01-13T14:45:00Z",
-    weight: 5.2,
-    value: 495.0,
-    statusHistory: [
-      { status: "pending", timestamp: "2024-01-13T14:45:00Z", note: "Pedido creado" },
-      { status: "in_transit", timestamp: "2024-01-14T08:00:00Z", note: "Enviado" },
-      { status: "delayed", timestamp: "2024-01-15T16:30:00Z", note: "Retraso por condiciones climáticas" },
-    ],
-    items: [
-      { productId: "PROD-001", productName: "Smartphone Samsung Galaxy", quantity: 2, price: 329.99, weight: 0.2 },
-      { productId: "PROD-006", productName: "Powerbank 10000mAh", quantity: 1, price: 32.99, weight: 0.4 },
-    ],
-  },
-  {
-    id: "ORD-005",
-    customer: "Elena Ruiz",
-    status: "in_transit",
-    createdAt: "2024-01-15T08:00:00Z",
-    weight: 0.8,
-    value: 49.99,
-    statusHistory: [
-      { status: "pending", timestamp: "2024-01-15T08:00:00Z", note: "Pedido recibido" },
-      { status: "in_transit", timestamp: "2024-01-15T12:15:00Z", note: "En ruta de entrega" },
-    ],
-    items: [
-      { productId: "PROD-005", productName: "Funda Protectora", quantity: 1, price: 21.99, weight: 0.1 },
-      { productId: "PROD-004", productName: "Cargador Inalámbrico", quantity: 1, price: 43.99, weight: 0.2 },
-    ],
-  },
-  {
-    id: "ORD-006",
-    customer: "Pedro Sánchez",
-    status: "cancelled",
-    createdAt: "2024-01-12T16:20:00Z",
-    weight: 1.5,
-    value: 82.99,
-    statusHistory: [
-      { status: "pending", timestamp: "2024-01-12T16:20:00Z", note: "Pedido creado" },
-      { status: "cancelled", timestamp: "2024-01-13T09:10:00Z", note: "Cancelado por el cliente" },
-    ],
-    items: [{ productId: "PROD-002", productName: "Auriculares Bluetooth", quantity: 1, price: 87.99, weight: 0.3 }],
-  },
-]
-
 export default function ShippingDashboard() {
-  const [orders, setOrders] = useState<Order[]>(initialOrders)
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>(initialOrders)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [lastUpdate, setLastUpdate] = useState(new Date())
-  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null)
+  const {
+    orders,
+    loading: loadingOrders,
+    error: errorOrders,
+    refreshOrders,
+    updateOrderInList,
+  } = useOrders();
+  const { clients, loading: loadingClients, error: errorClients } = useClients();
+  const { products, loading: loadingProducts, error: errorProducts } = useProducts();
+
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Simulación de actualizaciones en tiempo real
   useEffect(() => {
     const interval = setInterval(() => {
-      setOrders((prevOrders) => {
-        const updatedOrders = prevOrders.map((order) => {
-          // Simular cambios aleatorios de estado
-          if (Math.random() < 0.15) {
-            // 15% de probabilidad de cambio
-            const statuses: Order["status"][] = ["pending", "in_transit", "delivered", "delayed"]
-            const currentIndex = statuses.indexOf(order.status)
-            let nextStatus = order.status
-
-            // Lógica más realista de transición de estados
-            if (order.status === "pending") {
-              nextStatus = Math.random() < 0.7 ? "in_transit" : "delayed"
-            } else if (order.status === "in_transit") {
-              nextStatus = Math.random() < 0.8 ? "delivered" : "delayed"
-            } else if (order.status === "delayed") {
-              nextStatus = Math.random() < 0.6 ? "in_transit" : "delivered"
-            }
-
-            return {
-              ...order,
-              status: nextStatus,
-              statusHistory: [
-                ...order.statusHistory,
-                { status: nextStatus, timestamp: new Date().toISOString(), note: "Cambio de estado automático" },
-              ],
-            }
-          }
-          return order
-        })
-        return updatedOrders
-      })
       setLastUpdate(new Date())
     }, 8000) // Actualizar cada 8 segundos
 
@@ -252,9 +120,8 @@ export default function ShippingDashboard() {
   }
 
   const refreshData = () => {
+    refreshOrders()
     setLastUpdate(new Date())
-    // Aquí podrías hacer una llamada a tu API para obtener datos frescos
-    console.log("Actualizando datos...")
   }
 
   const toggleRowExpansion = (orderId: string) => {
@@ -267,37 +134,58 @@ export default function ShippingDashboard() {
     setExpandedRows(newExpandedRows)
   }
 
-  const handleCreateOrder = (orderData: any) => {
-    // Simular productos para el nuevo pedido
-    const mockItems: OrderItem[] = [
-      {
-        productId: "PROD-001",
-        productName: "Producto Ejemplo",
-        quantity: 1,
-        price: orderData.totalValue,
-        weight: orderData.totalWeight,
-      },
-    ]
+  const handleCreateOrder = async (orderData: any) => {
 
-    const newOrder: Order = {
-      id: `ORD-${String(orders.length + 1).padStart(3, "0")}`,
-      customer: orderData.client,
-      status: "pending",
-      createdAt: new Date().toISOString(),
-      weight: orderData.totalWeight,
-      value: orderData.totalValue,
-      items: mockItems,
-      statusHistory: [
-        {
-          status: "pending",
-          timestamp: new Date().toISOString(),
-          note: "Pedido creado desde el panel administrativo",
-        },
-      ],
-    }
+    try {
+    // Construye el payload según lo que espera tu backend
+    const payload = {
+      direccion: orderData.address,
+      ID_Cliente: orderData.client,
+      total_a_pagar: orderData.total,
+      productos: orderData.items.map((item: OrderItem) => ({
+        ID_Producto: item.product.id,
+        cantidad: item.quantity,
+      })),
+    };
 
-    setOrders([newOrder, ...orders])
-    console.log("Nuevo pedido creado:", newOrder)
+    // Llama a tu servicio que hace la petición real
+    await OrdersService.createOrder(payload);
+
+    // Refresca la lista de pedidos
+    refreshOrders();
+    setIsCreateModalOpen(false);
+    setShowSuccessModal(true); // Show success modal
+  } catch (error) {
+    console.error("Error al crear el pedido:", error);
+    alert("No se pudo crear el pedido. Intenta de nuevo.");
+  }
+  }
+
+  if (loadingOrders) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader className="w-12 h-12 animate-spin text-blue-600" />
+      </div>
+    )
+  }
+
+  if (errorOrders) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-red-50">
+        <div className="text-center p-8 bg-white rounded-lg shadow-md">
+          <AlertCircle className="w-12 h-12 mx-auto text-red-500 mb-4" />
+          <h2 className="text-2xl font-bold text-red-700">Error al cargar los pedidos</h2>
+          <p className="text-gray-600 mt-2">{errorOrders}</p>
+          <button
+            onClick={refreshData}
+            className="mt-6 flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-medium transition-colors duration-200 shadow-sm"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Intentar de nuevo
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -532,6 +420,10 @@ export default function ShippingDashboard() {
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onCreateOrder={handleCreateOrder}
+          clients={clients}
+          products={products}
+          loadingClients={loadingClients}
+          loadingProducts={loadingProducts}
         />
 
         {selectedOrderForDetails && (
@@ -545,6 +437,13 @@ export default function ShippingDashboard() {
             totalWeight={selectedOrderForDetails.weight}
           />
         )}
+
+        <SuccessModal
+          isOpen={showSuccessModal}
+          onClose={() => setShowSuccessModal(false)}
+          title="¡Pedido Creado!"
+          message="El pedido ha sido creado exitosamente."
+        />
       </div>
     </div>
   )

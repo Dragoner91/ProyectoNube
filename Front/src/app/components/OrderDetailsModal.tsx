@@ -1,24 +1,16 @@
-"use client"
-import { Modal } from "./Modal"
-import { Card, CardContent, CardHeader, CardTitle } from "./Card"
-import { Package, ShoppingCart } from "lucide-react"
-
-interface OrderItem {
-  productId: string
-  productName: string
-  quantity: number
-  price: number
-  weight: number
-}
+import { Modal } from "./Modal";
+import { Card, CardContent, CardHeader, CardTitle } from "./Card";
+import { Package, ShoppingCart } from "lucide-react";
+import type { OrderItem } from "@/lib/types";
 
 interface OrderDetailsModalProps {
-  isOpen: boolean
-  onClose: () => void
-  orderId: string
-  customerName: string
-  orderItems: OrderItem[]
-  totalValue: number
-  totalWeight: number
+  isOpen: boolean;
+  onClose: () => void;
+  orderId: string;
+  customerName: string;
+  orderItems: OrderItem[];
+  totalValue: number;
+  totalWeight: number;
 }
 
 export function OrderDetailsModal({
@@ -71,9 +63,9 @@ export function OrderDetailsModal({
                   className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
                 >
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-900">{item.productName}</h4>
+                    <h4 className="font-medium text-gray-900">{item.product.name}</h4>
                     <p className="text-sm text-gray-500">
-                      ${item.price.toFixed(2)} c/u • {item.weight}kg c/u
+                      ${item.product.price.toFixed(2)} c/u • {item.product.weight}kg c/u
                     </p>
                   </div>
 
@@ -85,12 +77,14 @@ export function OrderDetailsModal({
 
                     <div className="text-center">
                       <p className="text-sm text-gray-500">Peso Total</p>
-                      <p className="font-medium">{(item.weight * item.quantity).toFixed(2)}kg</p>
+                      <p className="font-medium">{(item.product.weight * item.quantity).toFixed(2)}kg</p>
                     </div>
 
                     <div className="text-right min-w-[100px]">
                       <p className="text-sm text-gray-500">Subtotal</p>
-                      <p className="font-semibold text-lg text-blue-600">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-semibold text-lg text-blue-600">
+                        ${(item.product.price * item.quantity).toFixed(2)}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -123,5 +117,5 @@ export function OrderDetailsModal({
         </Card>
       </div>
     </Modal>
-  )
+  );
 }

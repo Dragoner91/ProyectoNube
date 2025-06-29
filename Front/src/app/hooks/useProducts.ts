@@ -5,36 +5,33 @@ import { ProductsService } from "@/services/products"
 import type { Product } from "@/lib/types"
 
 export function useProducts() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchProducts = useCallback(async () => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
-      const response = await ProductsService.getProducts({
-        limit: 100,
-        isActive: true,
-      })
-      setProducts(response.data)
+      const response = await ProductsService.getProducts();
+      setProducts(response.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar productos")
-      console.error("Error fetching products:", err)
+      setError(err instanceof Error ? err.message : "Error al cargar productos");
+      console.error("Error fetching products:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    fetchProducts()
-  }, [fetchProducts])
+    fetchProducts();
+  }, [fetchProducts]);
 
   return {
     products,
     loading,
     error,
     refetch: fetchProducts,
-  }
+  };
 }

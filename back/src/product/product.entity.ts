@@ -9,8 +9,11 @@ export class Producto {
     @Column({ type: 'varchar', nullable: false })
     nombre: string;
 
-    @Column({ type: 'bool', nullable: true })
-    disponibilidad: boolean;
+    @Column({ type: 'int', nullable: false })
+    disponibilidad: number;
+
+    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    price: number;
 
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     peso: number;

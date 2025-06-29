@@ -14,12 +14,8 @@ export interface PaginatedResponse<T> {
 }
 
 export interface OrderItem {
-  id?: string
-  productId: string
-  productName: string
-  quantity: number
-  price: number
-  weight: number
+  product: Product;
+  quantity: number;
 }
 
 export interface Order {
@@ -47,14 +43,12 @@ export interface StatusHistoryItem {
 }
 
 export interface CreateOrderRequest {
-  customerId: string
-  customerName: string
-  customerEmail?: string
-  customerPhone?: string
-  shippingAddress: string
-  items: {
-    productId: string
-    quantity: number
+  direccion: string
+  ID_Cliente: number
+  total_a_pagar: number
+  productos: {
+    ID_Producto: string
+    cantidad: number
   }[]
 }
 
@@ -75,10 +69,7 @@ export interface Client {
 export interface Product {
   id: string
   name: string
-  description?: string
   price: number
   weight: number
   stock: number
-  category?: string
-  isActive: boolean
 }

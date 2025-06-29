@@ -18,12 +18,32 @@ export class ProductsService {
     if (params?.isActive !== undefined) searchParams.append("isActive", params.isActive.toString())
 
     const queryString = searchParams.toString()
-    const endpoint = `/products${queryString ? `?${queryString}` : ""}`
+    const endpoint = `/product/view${queryString ? `?${queryString}` : ""}`
 
-    return apiClient.get<PaginatedResponse<Product>>(endpoint)
+    const response = await apiClient.get<any[]>(endpoint);
+    
+    const transformedData = response.map(this.transformProduct);
+
+    return {
+      data: transformedData,
+      total: transformedData.length,
+      page: 1,
+      limit: transformedData.length,
+      totalPages: 1,
+    };
   }
 
   static async getProductById(id: string): Promise<ApiResponse<Product>> {
     return apiClient.get<ApiResponse<Product>>(`/products/${id}`)
   }
+
+  private static transformProduct(product: any): Product {
+  return {
+    id: product.ID_Producto,
+    name: product.nombre,
+    price: product.price,
+    weight: product.peso,
+    stock: product.disponibilidad,
+  };
+}
 }

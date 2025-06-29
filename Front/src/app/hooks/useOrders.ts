@@ -13,27 +13,15 @@ export function useOrders(initialFilters?: {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [pagination, setPagination] = useState({
-    total: 0,
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-  })
 
   const fetchOrders = useCallback(async (filters?: typeof initialFilters) => {
     try {
       setLoading(true)
       setError(null)
 
-      const response = await OrdersService.getOrders(filters)
+      const response = await OrdersService.getOrders(filters);
 
-      setOrders(response.data)
-      setPagination({
-        total: response.total,
-        page: response.page,
-        limit: response.limit,
-        totalPages: response.totalPages,
-      })
+      setOrders(response.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar pedidos")
       console.error("Error fetching orders:", err)
@@ -73,7 +61,6 @@ export function useOrders(initialFilters?: {
     orders,
     loading,
     error,
-    pagination,
     fetchOrders,
     refreshOrders,
     updateOrderInList,

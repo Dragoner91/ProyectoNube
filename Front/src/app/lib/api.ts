@@ -1,5 +1,5 @@
 // Configuración base de la API
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+const API_BASE_URL = "http://localhost:3000";
 
 class ApiClient {
   private baseURL: string
@@ -28,7 +28,7 @@ class ApiClient {
 
       return await response.json()
     } catch (error) {
-      console.error("API request failed:", error)
+      console.error("API request failed: ", error)
       throw error
     }
   }
