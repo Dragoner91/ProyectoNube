@@ -32,9 +32,17 @@ export class OrdersService {
     const lastStatusObj = order.estatus && order.estatus.length > 0 ? order.estatus[order.estatus.length - 1] : null;
     const rawStatus = lastStatusObj?.estatus ? lastStatusObj.estatus.toLowerCase() : "pending"
     const currentStatus = statusMapping[rawStatus] || "pending"
-    const createdAt = order.fecha_creacion && !isNaN(new Date(order.fecha_creacion).getTime()) 
-      ? new Date(order.fecha_creacion).toISOString() 
-      : new Date().toISOString();
+    let createdAt = new Date().toISOString();
+    if (Array.isArray(order.estatus)) {
+      const pendiente = order.estatus.find((s: any) => s.estatus && s.estatus.toLowerCase() === "pendiente");
+      if (pendiente && pendiente.fecha_hora && !isNaN(new Date(pendiente.fecha_hora).getTime())) {
+        createdAt = new Date(pendiente.fecha_hora).toISOString();
+      } else if (order.fecha_creacion && !isNaN(new Date(order.fecha_creacion).getTime())) {
+        createdAt = new Date(order.fecha_creacion).toISOString();
+      }
+    } else if (order.fecha_creacion && !isNaN(new Date(order.fecha_creacion).getTime())) {
+      createdAt = new Date(order.fecha_creacion).toISOString();
+    }
 
     return {
       id: order.ID_Pedido,

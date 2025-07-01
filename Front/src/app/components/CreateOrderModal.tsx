@@ -79,7 +79,7 @@ export function CreateOrderModal({
       return;
     }
 
-    const client = clients.find((c) => c.id === selectedClient);
+    const client = clients.find((c) => c.id == selectedClient);
     const { totalValue, totalWeight } = calculateTotals();
 
     const orderData = {
